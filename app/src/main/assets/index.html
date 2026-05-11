@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sóóru · Bénin</title>
+<style>
+/* ── Polices système offline (pas de Google Fonts) ── */
+:root {
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+/* ── Logo SVG inline (pas d'image externe) ── */
+.logo-svg { width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:#080C0A;display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;font-size:13px;}
+.stage{display:flex;flex-direction:column;align-items:center;}
+.frame{background:#0A0C0A;overflow:hidden;position:relative;}
+.notch{position:absolute;left:50%;transform:translateX(-50%);background:#000;border-radius:22px;z-index:200;}
+.statusbar{position:absolute;top:0;left:0;right:0;z-index:150;display:flex;align-items:flex-start;justify-content:space-between;pointer-events:none;}
+.statusbar-time{font-size:13px;font-weight:600;color:#fff;letter-spacing:-.02em}
+.statusbar-icons{display:flex;align-items:center;gap:5px}
+.statusbar-icons span{font-size:11px;color:rgba(255,255,255,.85)}
+.homebar{position:absolute;left:50%;transform:translateX(-50%);height:5px;background:rgba(255,255,255,.22);border-radius:4px;z-index:200;}
+.scroller{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.scroller::-webkit-scrollbar{display:none}
+
+@media screen and (max-width:599px){
+  body{padding:0;align-items:stretch;background:#0A0C0A;}
+  .stage{width:100%;max-width:100%;height:100%;gap:0;}
+  .frame{width:100%;height:100vh;height:100dvh;border-radius:0;box-shadow:none;display:flex;flex-direction:column;}
+  .notch,.homebar{display:none;}
+  .statusbar{padding-top:max(env(safe-area-inset-top,12px),12px);padding-left:max(env(safe-area-inset-left,16px),16px);padding-right:max(env(safe-area-inset-right,16px),16px);position:relative;height:auto;}
+  .scroller{flex:1;height:auto;padding-bottom:env(safe-area-inset-bottom,0px);}
+  .btn-red,.btn-amber,.btn-blue,.btn-purple,.btn-main,.lang-go,.w-cta{font-size:15px;padding:16px;}
+}
+@media screen and (min-width:600px) and (max-width:1023px){
+  body{padding:24px 16px;background:#080C0A;}
+  .stage{width:100%;max-width:520px;gap:16px;}
+  .frame{width:100%;max-width:460px;height:90vh;height:90dvh;border-radius:36px;box-shadow:0 0 0 1px #1E2820,0 20px 60px rgba(0,0,0,.8);}
+  .notch{width:100px;height:28px;top:11px;display:block;}
+  .statusbar{padding:15px 24px 0;height:auto;position:absolute;}
+  .homebar{width:120px;bottom:10px;display:block;}
+  .scroller{height:100%;}
+}
+@media screen and (min-width:1024px){
+  body{padding:32px 16px 48px;}
+  .stage{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:420px;}
+  .frame{width:340px;height:720px;border-radius:54px;box-shadow:0 0 0 1px #1E2820,0 0 0 3px #111411,0 40px 100px rgba(0,0,0,.8);}
+  .notch{top:13px;width:110px;height:31px;display:block;}
+  .statusbar{height:54px;padding:18px 28px 0;position:absolute;}
+  .homebar{width:134px;bottom:8px;display:block;}
+  .scroller{height:100%;}
+}
+
+.screen{display:none;min-height:100%;flex-direction:column;}
+.toast{position:absolute;bottom:40px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(23,139,66,.95);color:#fff;padding:12px 22px;border-radius:24px;font-size:12px;font-weight:600;z-index:999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{background:rgba(220,38,38,.95)}
+
+/* ── Splash ── */
+#s-splash{background:linear-gradient(160deg,#0A2A1C 0%,#0F5C2E 45%,#178B42 100%);justify-content:center;align-items:center;flex-direction:column;gap:0;position:relative;}
+.splash-logo-ring{width:100px;height:100px;border-radius:28px;background:linear-gradient(145deg,#0A2A1C,#178B42);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(23,139,66,.5);animation:splashPop 0.6s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes splashPop{0%{transform:scale(0.4);opacity:0}100%{transform:scale(1);opacity:1}}
+.splash-name{font-family:var(--font-serif);font-size:38px;font-weight:800;color:#fff;letter-spacing:-1px;margin-top:18px;animation:splashFade .8s .3s both;}
+.splash-name em{color:#FCD116;font-style:normal}
+.splash-tagline{font-size:13px;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;animation:splashFade .8s .5s both;}
+@keyframes splashFade{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
+.splash-dots{display:flex;gap:5px;margin-top:30px;}
+.splash-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3)}
+.splash-dot.active{background:#FCD116;width:18px;border-radius:3px}
+.splash-voice{display:flex;flex-direction:column;align-items:center;gap:8px;position:absolute;bottom:52px;left:0;right:0;}
+.splash-voice-btn{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);font-size:26px;cursor:pointer;margin:0 auto;display:flex;align-items:center;justify-content:center;}
+
+/* ── Lang ── */
+#s-lang{background:linear-gradient(160deg,#0A2A1C 0%,#0F5C2E 45%,#178B42 100%);justify-content:flex-start;align-items:center;overflow-y:auto;}
+.lang-card{background:#fff;border-radius:28px;margin:20px;padding:28px 22px 26px;display:flex;flex-direction:column;align-items:center;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.35);max-height:calc(100% - 40px);overflow-y:auto;scrollbar-width:none;}
+.lang-card::-webkit-scrollbar{display:none}
+.lang-logo-ring{width:80px;height:80px;border-radius:22px;background:linear-gradient(145deg,#0A2A1C,#178B42);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 8px 28px rgba(23,139,66,.4);}
+.lang-title{font-family:var(--font-serif);font-size:20px;font-weight:800;color:#0A2A1C;margin-bottom:3px;text-align:center}
+.lang-hint{font-size:12px;color:#9CA3AF;letter-spacing:.05em;margin-bottom:18px;text-align:center}
+.lang-choices{width:100%;display:flex;flex-direction:column;gap:9px;margin-bottom:18px}
+.lang-opt{width:100%;padding:13px 15px;background:#F9FAFB;border:2px solid #E5E7EB;border-radius:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;font-family:var(--font-sans);}
+.lang-opt.sel{border-color:#178B42;background:#F0FDF4}
+.lang-flag{font-size:22px;flex-shrink:0}
+.lang-info{flex:1;text-align:left}
+.lang-name{font-size:14px;font-weight:700;color:#111827}
+.lang-native{font-size:11px;color:#9CA3AF;margin-top:1px}
+.lang-tick{font-size:14px;color:#178B42;opacity:0;transition:opacity .15s;font-weight:700}
+.lang-opt.sel .lang-tick{opacity:1}
+.lang-go{width:100%;padding:15px;background:#178B42;color:#fff;font-family:var(--font-sans);font-size:15px;font-weight:700;border:none;border-radius:14px;cursor:pointer;box-shadow:0 6px 24px rgba(23,139,66,.4);}
+.lang-go-spacer{height:16px;flex-shrink:0;}
+.local-lang-row{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;font-weight:600;color:#111827;cursor:pointer;border-bottom:1px solid #F3F4F6;transition:background .15s;}
+.local-lang-row:last-child{border-bottom:none}
+.local-lang-row.sel{background:#DCFCE7;color:#065F46}
+.local-audio-ico{font-size:16px;flex-shrink:0}
+.local-play-btn{margin-left:auto;font-size:11px;color:#9CA3AF;background:#F3F4F6;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+@keyframes accordionIn{0%{opacity:0;transform:translateY(-8px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ── Welcome ── */
+#s00{background:linear-gradient(160deg,#0A2A1C 0%,#0F5C2E 45%,#178B42 100%);justify-content:center;align-items:center;}
+.w-card{background:#fff;border-radius:28px;margin:20px;padding:26px 22px 24px;display:flex;flex-direction:column;align-items:center;width:calc(100% - 40px);box-shadow:0 24px 60px rgba(0,0,0,.35);}
+.w-logo-ring{width:84px;height:84px;border-radius:22px;background:linear-gradient(145deg,#0A2A1C,#178B42);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 8px 28px rgba(23,139,66,.4);}
+.w-name{font-family:var(--font-serif);font-size:32px;font-weight:800;color:#0A2A1C;letter-spacing:-1px;line-height:1;margin-bottom:2px;text-align:center}
+.w-name em{color:#178B42;font-style:normal}
+.w-sub{font-size:9px;color:#9CA3AF;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;text-align:center}
+.w-tri{display:flex;width:46px;height:3px;border-radius:3px;overflow:hidden;margin:0 auto 12px}
+.w-tri span:nth-child(1){flex:1;background:#178B42}
+.w-tri span:nth-child(2){flex:1;background:#FCD116}
+.w-tri span:nth-child(3){flex:1;background:#E8112D}
+.w-pills{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:10px}
+.w-pill{background:#EEF9F3;border:1px solid #BBE8CE;border-radius:20px;padding:3px 10px;font-size:10px;color:#0F3D29;font-weight:600}
+.w-desc{font-size:12px;color:#6B7280;line-height:1.6;max-width:240px;margin:0 auto 12px;text-align:center}
+.w-dots{display:flex;gap:6px;margin-bottom:14px}
+.w-dots span{width:6px;height:6px;border-radius:50%;background:#E5E7EB;transition:all .3s}
+.w-dots span.on{width:20px;border-radius:3px;background:#178B42}
+.w-cta{width:100%;padding:14px;background:#178B42;color:#fff;font-family:var(--font-sans);font-size:14px;font-weight:700;border:none;border-radius:14px;cursor:pointer;box-shadow:0 6px 22px rgba(23,139,66,.4);margin-bottom:10px}
+
+/* ── Home ── */
+#s01{background:#F4F2ED;display:flex;flex-direction:column;}
+.hdr-green{background:linear-gradient(160deg,#0A2A1C,#178B42);padding:58px 18px 28px;position:relative;flex-shrink:0;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.hdr-curve{position:absolute;bottom:-1px;left:0;right:0;height:24px;background:#F4F2ED;border-radius:22px 22px 0 0}
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;justify-content:center;}
+.bj-flag{width:24px;height:16px;border-radius:3px;overflow:hidden;display:flex}
+.bj-l{background:#178B42;width:8px;height:100%}
+.bj-r{display:flex;flex-direction:column;flex:1}
+.bj-t{background:#FFC900;flex:1}
+.bj-b{background:#C0251C;flex:1}
+.logo-t{font-family:var(--font-serif);font-size:14px;font-weight:700;color:#fff}
+.logo-s{font-size:9px;color:rgba(255,255,255,.45)}
+.hdr-title{font-family:var(--font-serif);font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.6)}
+.body-pad{padding:16px 14px 40px;flex:1}
+.sec-label{font-size:13px;font-weight:700;color:#374151;margin-bottom:10px;letter-spacing:.02em;text-align:center}
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.05)}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.acard{background:#fff;border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.05);transition:transform .15s;display:flex;flex-direction:column;align-items:center}
+.acard:active{transform:translateY(-1px)}
+.ac-ico{width:44px;height:44px;border-radius:13px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.ic-red{background:#FEE2E2}.ic-amb{background:#FEF3C7}.ic-blu{background:#DBEAFE}.ic-prp{background:#EDE9FE}.ic-grn{background:#DCFCE7}
+.ac-t{font-size:13px;font-weight:700;color:#111827;margin-bottom:2px}
+.ac-s{font-size:11px;color:#9CA3AF;line-height:1.3}
+.alert-g{background:#ECFDF5;border:1px solid #6EE7B7;border-radius:13px;padding:11px 13px;margin-bottom:10px}
+.al-t{font-size:12px;font-weight:700;color:#065F46;margin-bottom:2px}
+.al-x{font-size:11px;color:#047857;line-height:1.5}
+.suivi-row{display:flex;align-items:center;gap:9px}
+.suivi-ico{width:38px;height:38px;border-radius:11px;background:#EEF9F3;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.home-ticker-bar{background:#DC2626;padding:9px 0;overflow:hidden;flex-shrink:0;width:100%;position:sticky;bottom:0;z-index:50;}
+.home-ticker-inner{display:flex;width:max-content;animation:homeTickerScroll 30s linear infinite;}
+.home-ticker-txt{display:inline-block;white-space:nowrap;color:#fff;font-size:11.5px;font-weight:800;letter-spacing:.06em;padding-right:60px;}
+@keyframes homeTickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── Login ── */
+#s02{background:linear-gradient(175deg,#0A2A1C,#0E3D24 40%,#0A2A1C);justify-content:center;}
+.login-top{flex-shrink:0;padding:54px 26px 22px;text-align:center;display:flex;flex-direction:column;align-items:center;}
+.login-logo{width:64px;height:64px;border-radius:17px;background:linear-gradient(145deg,#0A2A1C,#178B42);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 13px;box-shadow:0 8px 24px rgba(23,139,66,.35)}
+.login-h{font-family:var(--font-serif);font-size:19px;font-weight:700;color:#fff;margin-bottom:4px}
+.login-s{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.04em}
+.login-card{background:#fff;border-radius:28px 28px 0 0;padding:22px 20px 36px;overflow-y:auto}
+.login-card::-webkit-scrollbar{display:none}
+.back-pill{display:inline-flex;align-items:center;gap:6px;background:#EEF9F3;border:1px solid #BBE8CE;border-radius:20px;padding:6px 13px;font-size:11px;color:#065F46;font-weight:600;cursor:pointer;margin-bottom:16px;}
+.flbl{font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase}
+.fwrap{position:relative;margin-bottom:13px}
+.fin{width:100%;padding:13px 14px;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:13px;font-size:13px;color:#111827;font-family:var(--font-sans);outline:none;transition:border-color .2s}
+.fin:focus{border-color:#178B42;box-shadow:0 0 0 3px rgba(23,139,66,.12)}
+.fin::placeholder{color:#D1D5DB}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;color:#9CA3AF;padding:4px}
+.info-box{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:11px;padding:11px 13px;margin-bottom:14px}
+.info-box-t{font-size:11px;font-weight:700;color:#14532D;margin-bottom:2px}
+.info-box-s{font-size:11px;color:#166534;line-height:1.4}
+.divline{display:flex;align-items:center;gap:10px;margin:10px 0;color:#D1D5DB;font-size:10px}
+.divline::before,.divline::after{content:'';flex:1;height:1px;background:#E5E7EB}
+.forgot{text-align:center;font-size:12px;color:#9CA3AF;margin-bottom:14px}
+.forgot span{color:#178B42;cursor:pointer;font-weight:600}
+.btn-main{width:100%;padding:14px;background:#178B42;color:#fff;font-family:var(--font-sans);font-size:14px;font-weight:700;border:none;border-radius:14px;cursor:pointer;box-shadow:0 5px 20px rgba(23,139,66,.35);transition:all .18s;margin-bottom:10px;}
+.btn-main:disabled{background:#9CA3AF;box-shadow:none;cursor:not-allowed;}
+.btn-ghost{width:100%;padding:13px;background:transparent;color:#6B7280;font-family:var(--font-sans);font-size:13px;font-weight:500;border:1.5px solid #E5E7EB;border-radius:13px;cursor:pointer;}
+
+/* ── Form Commons ── */
+.hdr-curve-lt{position:absolute;bottom:-1px;left:0;right:0;height:24px;background:#F4F2ED;border-radius:22px 22px 0 0}
+.back-row{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:9px;cursor:pointer;display:flex;align-items:center;gap:5px;align-self:flex-start;width:100%}
+.form-title{font-family:var(--font-serif);font-size:18px;font-weight:700;color:#fff;margin-bottom:3px;text-align:center}
+.form-sub{font-size:12px;color:rgba(255,255,255,.55);text-align:center}
+.fgroup{margin-bottom:12px}
+.flab{font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase}
+.fi{width:100%;padding:11px 13px;background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;font-size:12px;color:#111827;font-family:var(--font-sans);outline:none;transition:border-color .2s}
+.fi::placeholder{color:#D1D5DB}
+.fta{width:100%;padding:11px 13px;min-height:70px;resize:none;background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;font-size:12px;color:#111827;font-family:var(--font-sans);outline:none;}
+.segtabs{display:flex;background:#F3F4F6;border-radius:12px;padding:3px;margin-bottom:12px}
+.segtab{flex:1;padding:8px 4px;text-align:center;font-size:11px;font-weight:600;color:#9CA3AF;border-radius:10px;cursor:pointer;transition:all .2s}
+.segtab.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.09);color:#DC2626}
+.upload-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:14px}
+.up-box{background:#fff;border:1.5px dashed #E5E7EB;border-radius:12px;padding:12px 7px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s}
+.up-box.sel{border-color:#DC2626;background:#FEF2F2;border-style:solid}
+.up-ico{font-size:19px}
+.up-lbl{font-size:10px;font-weight:600;color:#374151}
+.urg-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.urg-card{background:#fff;border:2px solid #E5E7EB;border-radius:12px;padding:10px 7px;text-align:center;cursor:pointer;transition:all .2s}
+.urg-card.on{background:#FEF2F2;border-color:#DC2626}
+.urg-ico{font-size:17px;margin-bottom:3px;height:22px;display:flex;align-items:center;justify-content:center}
+.urg-lbl{font-size:10px;font-weight:700;color:#374151}
+.hdr-red,.hdr-amber,.hdr-blue,.hdr-purple,.hdr-green{display:flex;flex-direction:column;align-items:center;text-align:center;}
+.geo-btn{flex-shrink:0;width:40px;height:40px;background:#178B42;border:none;border-radius:11px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(23,139,66,.3);}
+.geo-btn-purple{background:#7C3AED;}
+.geo-btn-blue{background:#1D4ED8;}
+@keyframes geoPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.geo-btn.loading{animation:geoPulse 1s infinite}
+
+/* ── Sections ── */
+#s03{background:#F4F2ED;}
+.hdr-red{background:linear-gradient(160deg,#1A0A0A,#DC2626);padding:58px 16px 28px;position:relative;flex-shrink:0;}
+.btn-red{width:100%;padding:14px;background:linear-gradient(135deg,#DC2626,#B91C1C);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;border:none;border-radius:14px;cursor:pointer;box-shadow:0 5px 18px rgba(220,38,38,.35);}
+#s04{background:#F4F2ED;}
+.hdr-amber{background:linear-gradient(160deg,#1C1200,#D97706);padding:58px 16px 28px;position:relative;flex-shrink:0;}
+.star-row{display:flex;gap:7px;margin-bottom:14px;justify-content:center}
+.star{font-size:26px;cursor:pointer;transition:transform .15s;filter:grayscale(1) opacity(.35);user-select:none}
+.star.on{filter:none;transform:scale(1.15)}
+.btn-amber{width:100%;padding:14px;background:linear-gradient(135deg,#D97706,#B45309);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;border:none;border-radius:14px;cursor:pointer;box-shadow:0 5px 18px rgba(217,119,6,.35);}
+#s05{background:#F4F2ED;}
+.hdr-blue{background:linear-gradient(160deg,#0A1A3A,#1D4ED8);padding:58px 16px 28px;position:relative;flex-shrink:0;}
+.dtype-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.dtype{background:#fff;border:2px solid #E5E7EB;border-radius:12px;padding:10px 7px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;color:#374151;transition:all .2s}
+.dtype.on{border-color:#1D4ED8;background:#EFF6FF;color:#1D4ED8}
+.btn-blue{width:100%;padding:14px;background:linear-gradient(135deg,#1D4ED8,#1E3A8A);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;border:none;border-radius:14px;cursor:pointer;box-shadow:0 5px 18px rgba(29,78,216,.35);}
+#s06{background:#F4F2ED;}
+.hdr-purple{background:linear-gradient(160deg,#1A0A2A,#7C3AED);padding:58px 16px 28px;position:relative;flex-shrink:0;}
+.btn-purple{width:100%;padding:14px;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;border:none;border-radius:14px;cursor:pointer;box-shadow:0 5px 18px rgba(124,58,237,.35);}
+#s07{background:#F4F2ED;}
+.dos-search-wrap{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #E5E7EB;border-radius:14px;padding:10px 13px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:4px;}
+.dos-search-wrap:focus-within{border-color:#178B42;}
+.dos-search-ico{font-size:16px;flex-shrink:0;color:#9CA3AF}
+.dos-search-input{flex:1;border:none;outline:none;font-family:var(--font-sans);font-size:13px;color:#111827;background:transparent;}
+.dos-search-input::placeholder{color:#D1D5DB}
+.dos-search-clear{background:none;border:none;cursor:pointer;font-size:13px;color:#9CA3AF;padding:2px 4px;border-radius:50%;}
+.dos-item{background:#fff;border-radius:14px;padding:13px;margin-bottom:9px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.05);cursor:pointer;transition:transform .15s}
+.dos-item.hidden{display:none}
+.dos-header{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.dos-badge{padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.04em}
+.badge-traite{background:#DCFCE7;color:#14532D}
+.badge-cours{background:#FEF3C7;color:#78350F}
+.badge-ouvert{background:#DBEAFE;color:#1E3A8A}
+.dos-ref{font-size:11px;color:#9CA3AF;margin-left:auto}
+.dos-title{font-size:13px;font-weight:700;color:#111827;margin-bottom:3px}
+.dos-sub{font-size:11px;color:#6B7280}
+.dos-bar-wrap{height:3px;background:#F3F4F6;border-radius:2px;margin-top:7px;overflow:hidden}
+.dos-bar{height:100%;border-radius:2px;transition:width .6s}
+#s08{background:linear-gradient(160deg,#0A2A1C 0%,#0F5C2E 45%,#178B42 100%);justify-content:center;align-items:center;}
+.suc-card{background:#fff;border-radius:28px;margin:20px;padding:28px 22px 26px;display:flex;flex-direction:column;align-items:center;width:calc(100% - 40px);box-shadow:0 24px 60px rgba(0,0,0,.35);}
+.suc-ico{width:70px;height:70px;background:#DCFCE7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px}
+.suc-title{font-family:var(--font-serif);font-size:20px;font-weight:800;color:#0A2A1C;margin-bottom:6px;text-align:center}
+.suc-sub{font-size:12px;color:#6B7280;line-height:1.65;margin-bottom:18px;text-align:center}
+.ref-box{background:#EEF9F3;border:1px solid #BBE8CE;border-radius:13px;padding:12px 16px;margin-bottom:18px;width:100%;text-align:center}
+.ref-lbl{font-size:10px;color:#9CA3AF;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.ref-num{font-family:var(--font-serif);font-size:19px;font-weight:700;color:#0A2A1C;letter-spacing:.05em}
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:#fff;border-radius:26px 26px 0 0;width:100%;padding:22px 18px 34px;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.1,.64,1);position:relative;}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:38px;height:4px;background:#E5E7EB;border-radius:2px;margin:0 auto 16px}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:#9CA3AF;padding:4px 8px}
+.modal-title{font-family:var(--font-serif);font-size:17px;font-weight:700;color:#111827;margin-bottom:5px}
+.modal-desc{font-size:12px;color:#6B7280;line-height:1.5;margin-bottom:14px}
+.modal-btn{width:100%;padding:13px;background:#178B42;color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;border:none;border-radius:13px;cursor:pointer;margin-top:8px;}
+.modal-btn.sec{background:#F3F4F6;color:#374151}
+#s-reward{background:#F4F2ED;}
+.hdr-gold{background:linear-gradient(160deg,#1C1000,#B45309);padding:58px 16px 28px;position:relative;flex-shrink:0;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.hdr-curve-gold{position:absolute;bottom:-1px;left:0;right:0;height:24px;background:#F4F2ED;border-radius:22px 22px 0 0}
+.faq-item{background:#fff;border-radius:14px;padding:0;margin-bottom:9px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.05);overflow:hidden;}
+.faq-q{padding:14px;font-size:13px;font-weight:700;color:#111827;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.faq-chevron{font-size:12px;color:#9CA3AF;transition:transform .25s;flex-shrink:0}
+.faq-item.open .faq-chevron{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;font-size:12px;color:#4B5563;line-height:1.6;padding:0 14px;}
+.faq-item.open .faq-a{max-height:400px;padding:0 14px 14px;}
+.reward-tel-card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1.5px solid #FCD116;margin-top:4px;margin-bottom:16px}
+.reward-tel-lbl{font-size:11px;font-weight:700;color:#78350F;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.reward-tel-hint{font-size:11px;color:#9CA3AF;margin-bottom:10px;line-height:1.4}
+/* ── Offline badge ── */
+.offline-banner{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:10px;color:#065F46;text-align:center;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="frame">
+    <div class="notch"></div>
+    <div class="statusbar">
+      <div class="statusbar-time" id="clock">9:41</div>
+      <div class="statusbar-icons"><span>&#9679;&#9679;&#9679;&#9679;</span><span>&nbsp;WiFi&nbsp;</span><span>&#128267;</span></div>
+    </div>
+    <div class="homebar"></div>
+    <div class="scroller" id="scroller">
+
+      <!-- SPLASH -->
+      <div class="screen" id="s-splash" style="display:flex;position:relative;">
+        <div class="splash-logo-ring">
+          <!-- Logo SVG inline — aucune dépendance externe -->
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="28" fill="#178B42" opacity=".2"/>
+            <path d="M18 38 L30 14 L42 38 Z" fill="#FCD116" opacity=".9"/>
+            <path d="M22 38 L30 20 L38 38 Z" fill="#178B42"/>
+            <circle cx="30" cy="32" r="4" fill="#fff"/>
+            <rect x="14" y="40" width="32" height="4" rx="2" fill="#E8112D"/>
+          </svg>
+        </div>
+        <div class="splash-name">S<em>óó</em>ru</div>
+        <div class="splash-tagline">Gouvernance &amp; Sécurité Citoyenne</div>
+        <div class="splash-dots">
+          <div class="splash-dot active"></div>
+          <div class="splash-dot"></div>
+          <div class="splash-dot"></div>
+        </div>
+        <div class="splash-voice">
+          <button class="splash-voice-btn" onclick="showToast('Commande vocale activée 🎙️','ok')">🎙️</button>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase">Commande vocale</div>
+        </div>
+      </div>
+
+      <!-- S-LANG -->
+      <div class="screen" id="s-lang">
+        <div class="lang-card">
+          <div class="lang-logo-ring">
+            <svg width="50" height="50" viewBox="0 0 60 60" fill="none">
+              <path d="M18 38 L30 14 L42 38 Z" fill="#FCD116" opacity=".9"/>
+              <path d="M22 38 L30 20 L38 38 Z" fill="#fff"/>
+              <circle cx="30" cy="32" r="4" fill="#178B42"/>
+            </svg>
+          </div>
+          <div class="lang-title">Sóóru</div>
+          <div class="lang-hint">Choisissez votre langue<br>Choose your language</div>
+          <div class="lang-choices">
+            <button class="lang-opt sel" id="lopt-fr" onclick="pickLang('fr')">
+              <span class="lang-flag">🇫🇷</span>
+              <div class="lang-info"><div class="lang-name">Français</div><div class="lang-native">Langue officielle du Bénin</div></div>
+              <span class="lang-tick">✓</span>
+            </button>
+            <button class="lang-opt" id="lopt-en" onclick="pickLang('en')">
+              <span class="lang-flag">🇬🇧</span>
+              <div class="lang-info"><div class="lang-name">English</div><div class="lang-native">International language</div></div>
+              <span class="lang-tick">✓</span>
+            </button>
+          </div>
+          <button class="lang-opt" id="lopt-local" onclick="toggleLocalLangs()">
+            <span class="lang-flag">🎙️</span>
+            <div class="lang-info"><div class="lang-name">Langues locales</div><div class="lang-native">Interaction vocale IA uniquement</div></div>
+            <span class="lang-tick" id="local-tick" style="opacity:0">✓</span>
+            <span id="local-chevron" style="font-size:11px;color:#9CA3AF;transition:transform .25s">⌄</span>
+          </button>
+          <div id="localLangDropdown" style="display:none;width:100%;background:#F9FAFB;border:2px solid #178B42;border-radius:14px;overflow:hidden;margin-top:6px;animation:accordionIn .25s ease both">
+            <div style="padding:8px 12px;font-size:9px;font-weight:700;color:#065F46;background:#EEF9F3;border-bottom:1px solid #BBE8CE;">🎙️ Sélectionnez votre langue vocale</div>
+            <div id="lopt-fon" class="local-lang-row" onclick="pickLangLocal('fon')"><span class="local-audio-ico">🔊</span> Fon<span class="local-play-btn">▶</span></div>
+            <div id="lopt-yoruba" class="local-lang-row" onclick="pickLangLocal('yoruba')"><span class="local-audio-ico">🔊</span> Yoruba<span class="local-play-btn">▶</span></div>
+            <div id="lopt-bariba" class="local-lang-row" onclick="pickLangLocal('bariba')"><span class="local-audio-ico">🔊</span> Bariba<span class="local-play-btn">▶</span></div>
+            <div id="lopt-dendi" class="local-lang-row" onclick="pickLangLocal('dendi')"><span class="local-audio-ico">🔊</span> Dendi<span class="local-play-btn">▶</span></div>
+            <div id="lopt-mina" class="local-lang-row" onclick="pickLangLocal('mina')"><span class="local-audio-ico">🔊</span> Mina<span class="local-play-btn">▶</span></div>
+            <div id="lopt-adja" class="local-lang-row" onclick="pickLangLocal('adja')"><span class="local-audio-ico">🔊</span> Adja<span class="local-play-btn">▶</span></div>
+            <div id="lopt-goun" class="local-lang-row" onclick="pickLangLocal('goun')"><span class="local-audio-ico">🔊</span> Goun<span class="local-play-btn">▶</span></div>
+            <div id="lopt-idaca" class="local-lang-row" onclick="pickLangLocal('idaca')"><span class="local-audio-ico">🔊</span> Idaca<span class="local-play-btn">▶</span></div>
+            <div id="lopt-lokpa" class="local-lang-row" onclick="pickLangLocal('lokpa')"><span class="local-audio-ico">🔊</span> Lokpa<span class="local-play-btn">▶</span></div>
+            <div id="lopt-otamari" class="local-lang-row" onclick="pickLangLocal('otamari')"><span class="local-audio-ico">🔊</span> Otamari<span class="local-play-btn">▶</span></div>
+          </div>
+          <div class="lang-go-spacer"></div>
+          <button class="lang-go" id="langGoBtn" onclick="confirmLang()">Continuer →</button>
+        </div>
+      </div>
+
+      <!-- S00 Bienvenue -->
+      <div class="screen" id="s00">
+        <div class="w-card">
+          <div style="width:100%;display:flex;justify-content:flex-start;margin-bottom:4px">
+            <button onclick="goTo('s-lang')" style="background:none;border:none;font-size:12px;font-weight:600;color:#9CA3AF;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font-sans)">← Choix de la langue</button>
+          </div>
+          <div class="w-logo-ring">
+            <svg width="54" height="54" viewBox="0 0 60 60" fill="none">
+              <path d="M18 38 L30 14 L42 38 Z" fill="#FCD116" opacity=".9"/>
+              <path d="M22 38 L30 20 L38 38 Z" fill="#fff"/>
+              <circle cx="30" cy="32" r="4" fill="#178B42"/>
+            </svg>
+          </div>
+          <div class="w-name">S<em>óó</em>ru</div>
+          <div class="w-sub" id="w-sub">Gouvernance &amp; Sécurité Citoyenne</div>
+          <div class="w-tri"><span></span><span></span><span></span></div>
+          <div class="w-pills">
+            <div class="w-pill">🎙️ IA vocale</div>
+            <div class="w-pill">🔒 Anonyme</div>
+            <div class="w-pill">🌟 Citoyen actif</div>
+          </div>
+          <div class="w-desc" id="w-desc">La plateforme citoyenne de référence au Bénin. Signalez, dénoncez, suivez — en toute sécurité.</div>
+          <div class="w-dots" id="wdots"><span class="on"></span><span></span><span></span></div>
+          <button class="w-cta" id="w-cta" onclick="goTo('s01')">Découvrir la plateforme →</button>
+          <button onclick="goTo('s-lang')" style="background:none;border:1.5px solid #E5E7EB;border-radius:22px;padding:8px 18px;font-size:12px;font-weight:600;color:#6B7280;cursor:pointer;margin:0 auto;display:block;font-family:var(--font-sans)">🌐 Changer de langue</button>
+        </div>
+      </div>
+
+      <!-- S01 Accueil -->
+      <div class="screen" id="s01">
+        <div class="hdr-green">
+          <div class="logo-row">
+            <div class="bj-flag"><div class="bj-l"></div><div class="bj-r"><div class="bj-t"></div><div class="bj-b"></div></div></div>
+            <div><div class="logo-t">SÓÓRU</div><div class="logo-s">Veille citoyenne · Bénin</div></div>
+          </div>
+          <div class="hdr-title" id="home-title">Bienvenue, citoyen</div>
+          <div class="hdr-sub" id="home-sub">Contribuons à la sécurité de notre communauté</div>
+          <div class="hdr-curve"></div>
+        </div>
+        <div class="body-pad">
+          <div class="offline-banner">📴 Mode hors-ligne actif — Toutes fonctionnalités disponibles</div>
+          <div class="sec-label" id="home-action-lbl">Que souhaitez-vous faire ?</div>
+          <div class="action-grid">
+            <div class="acard" style="grid-column:1/-1;flex-direction:row;gap:13px;padding:16px 14px;text-align:left" onclick="goTo('s02')">
+              <div class="ac-ico ic-red" style="flex-shrink:0;margin:0">🚨</div>
+              <div><div class="ac-t" id="card-sig">Signaler un incident</div><div class="ac-s" id="card-sig-s">Signalez un incident, activité suspecte ou urgence</div></div>
+              <div style="margin-left:auto;color:#DC2626;font-size:17px;flex-shrink:0">›</div>
+            </div>
+            <div class="acard" onclick="goTo('s04')">
+              <div class="ac-ico ic-amb">⭐</div>
+              <div class="ac-t" id="card-eloge">Faire un éloge</div>
+              <div class="ac-s" id="card-eloge-s">Féliciter un agent</div>
+            </div>
+            <div class="acard" onclick="goTo('s05')">
+              <div class="ac-ico ic-blu">🔍</div>
+              <div class="ac-t" id="card-deno">Dénoncer</div>
+              <div class="ac-s" id="card-deno-s">Activités suspectes</div>
+            </div>
+            <div class="acard" style="grid-column:1/-1;flex-direction:row;gap:13px;padding:16px 14px;text-align:left" onclick="goTo('s06')">
+              <div class="ac-ico ic-prp" style="flex-shrink:0;margin:0">👥</div>
+              <div><div class="ac-t" id="card-susp">Groupes suspects</div><div class="ac-s" id="card-susp-s">Mouvements inhabituels dans votre quartier</div></div>
+              <div style="margin-left:auto;color:#7C3AED;font-size:17px;flex-shrink:0">›</div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="goTo('s07')">
+            <div class="suivi-row" style="margin-bottom:8px">
+              <div class="suivi-ico">📋</div>
+              <div><div style="font-size:12px;font-weight:700;color:#111827" id="card-dos">Suivi de vos dossiers</div><div style="font-size:10px;color:#9CA3AF" id="card-dos-s">Consultez l'avancement de vos dossiers</div></div>
+            </div>
+            <div style="text-align:right"><span style="font-size:11px;color:#178B42;font-weight:700">Voir mes dossiers →</span></div>
+          </div>
+          <div class="alert-g">
+            <div class="al-t">🔒 <span id="anon-lbl">Anonymat garanti</span></div>
+            <div class="al-x" id="anon-txt">Vos signalements sont anonymis&eacute;s et stock&eacute;s localement jusqu&apos;&agrave; synchronisation r&eacute;seau.</div>
+            <div style="margin-top:8px;text-align:center"><span onclick="goTo('s-reward')" style="font-size:10px;font-weight:700;color:#178B42;cursor:pointer;text-decoration:underline">🎁 Voir les récompenses ›</span></div>
+          </div>
+        </div>
+        <div class="home-ticker-bar"><div class="home-ticker-inner"><span class="home-ticker-txt">🏆 Toutes informations signalées et vérifiées sont sujettes à une récompense financière &mdash; voir la section récompenses&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="home-ticker-txt">🏆 Toutes informations signalées et vérifiées sont sujettes à une récompense financière &mdash; voir la section récompenses&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="home-ticker-txt">🏆 Toutes informations signalées et vérifiées sont sujettes à une récompense financière &mdash; voir la section récompenses&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div>
+      </div>
+
+      <!-- S02 Login -->
+      <div class="screen" id="s02">
+        <div class="login-top">
+          <div class="login-logo"><svg width="40" height="40" viewBox="0 0 60 60" fill="none"><path d="M18 38 L30 14 L42 38 Z" fill="#FCD116"/><path d="M22 38 L30 20 L38 38 Z" fill="#4ADE80"/><circle cx="30" cy="32" r="4" fill="#fff"/></svg></div>
+          <div class="login-h" id="login-h">Connexion sécurisée</div>
+          <div class="login-s" id="login-s">Pour soumettre un signalement</div>
+        </div>
+        <div class="login-card">
+          <div class="back-pill" onclick="goTo('s01')">← <span id="login-back">Retour à l'accueil</span></div>
+          <div class="info-box">
+            <div class="info-box-t">🔒 <span id="login-why-t">Pourquoi se connecter ?</span></div>
+            <div class="info-box-s" id="login-why-s">Votre numéro permet un suivi personnalisé et la réception de notifications SMS dès que le réseau est disponible.</div>
+          </div>
+          <div class="flbl" id="lbl-user">Numéro de téléphone</div>
+          <div class="fwrap"><input class="fin" id="loginUser" type="tel" placeholder="+229 XX XX XX XX"></div>
+          <div class="flbl" id="lbl-pass">Mot de passe</div>
+          <div class="fwrap">
+            <input class="fin" id="loginPass" type="password" placeholder="Mot de passe">
+            <button class="eye-btn" onclick="togglePwd()" id="eyeBtn">👁</button>
+          </div>
+          <div class="forgot" style="display:flex;justify-content:space-between;align-items:center">
+            <span onclick="showCreateAccount()" style="color:#374151;cursor:pointer;font-weight:600">Première connexion ?</span>
+            <span id="forgot-lnk" onclick="showForgotPwd()">Mot de passe oublié ?</span>
+          </div>
+          <button class="btn-main" id="loginBtn" onclick="doLogin()"><span id="login-btn-txt">Accéder au signalement →</span></button>
+          <div class="divline">ou</div>
+          <button class="btn-ghost" onclick="goAnon()">Continuer de façon anonyme</button>
+        </div>
+      </div>
+
+      <!-- S03 Signalement -->
+      <div class="screen" id="s03">
+        <div class="hdr-red">
+          <div class="back-row" onclick="goTo('s01')">← <span id="sig-back">Retour à l'accueil</span></div>
+          <div class="form-title">🚨 Nouveau signalement</div>
+          <div class="form-sub" id="sig-subtitle">Formulaire normalisé d'incident</div>
+          <div id="anonBadge" style="display:none;margin-top:7px;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 11px;font-size:9px;color:rgba(255,255,255,.8)">🔒 Mode anonyme</div>
+          <div class="hdr-curve-lt"></div>
+        </div>
+        <div class="body-pad">
+          <div class="sec-label">Catégorie &amp; localisation</div>
+          <div class="segtabs" id="seg-cat">
+            <div class="segtab on" onclick="segClick('seg-cat',0)">Incident</div>
+            <div class="segtab" onclick="segClick('seg-cat',1)">Suspect</div>
+            <div class="segtab" onclick="segClick('seg-cat',2)">Urgence</div>
+          </div>
+          <div class="fgroup">
+            <div class="flab">Localisation</div>
+            <div style="display:flex;gap:6px;align-items:stretch">
+              <input class="fi" id="sigLoc" placeholder="Commune, quartier, repère…" style="flex:1">
+              <button onclick="getGeoLoc('sigLoc')" class="geo-btn" title="Localisation GPS">🌍</button>
+            </div>
+            <div id="sigLocStatus" style="font-size:9px;color:#9CA3AF;margin-top:3px"></div>
+          </div>
+          <div class="fgroup">
+            <div class="flab">Date &amp; heure</div>
+            <input class="fi" id="sigDate" type="datetime-local">
+          </div>
+          <div class="fgroup">
+            <div class="flab">Description</div>
+            <textarea class="fta" id="sigDesc" placeholder="Décrivez les faits avec précision…"></textarea>
+          </div>
+          <div class="sec-label">Niveau d'urgence</div>
+          <div class="urg-grid" id="urgRow">
+            <div class="urg-card" onclick="setUrg(this,'urgRow')"><div class="urg-ico">🟢</div><div class="urg-lbl">Faible</div></div>
+            <div class="urg-card on" onclick="setUrg(this,'urgRow')"><div class="urg-ico">🟡</div><div class="urg-lbl">Moyen</div></div>
+            <div class="urg-card" onclick="setUrg(this,'urgRow')"><div class="urg-ico">🔴</div><div class="urg-lbl">Urgent</div></div>
+            <div class="urg-card" onclick="setUrg(this,'urgRow')"><div class="urg-ico">⛔</div><div class="urg-lbl">Critique</div></div>
+          </div>
+          <div class="sec-label">Joindre des preuves</div>
+          <input type="file" id="fileAudio" accept="audio/*" style="display:none" onchange="handleUpload(this,'upV','up-vocal','🎙️ Audio')">
+          <input type="file" id="fileVideo" accept="video/*" style="display:none" onchange="handleUpload(this,'upVid','up-video','🎬 Vidéo')">
+          <input type="file" id="filePhoto" accept="image/*" style="display:none" onchange="handleUpload(this,'upP','up-photo','📷 Photo')">
+          <div class="upload-row">
+            <div class="up-box" id="upV" onclick="document.getElementById('fileAudio').click()"><div class="up-ico">🎙️</div><div class="up-lbl" id="up-vocal">Audio</div></div>
+            <div class="up-box" id="upVid" onclick="document.getElementById('fileVideo').click()"><div class="up-ico">🎬</div><div class="up-lbl" id="up-video">Vidéo</div></div>
+            <div class="up-box" id="upP" onclick="document.getElementById('filePhoto').click()"><div class="up-ico">📷</div><div class="up-lbl" id="up-photo">Photo</div></div>
+          </div>
+          <!-- Offline queue notice -->
+          <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:10px;color:#1E3A8A;">
+            📴 <strong>Mode hors-ligne :</strong> votre signalement sera stocké localement et envoyé automatiquement dès que le réseau sera disponible.
+          </div>
+          <button class="btn-red" onclick="doSubmit()">Enregistrer le signalement →</button>
+        </div>
+      </div>
+
+      <!-- S04 Éloge -->
+      <div class="screen" id="s04">
+        <div class="hdr-amber">
+          <div class="back-row" onclick="goTo('s01')">← Retour à l'accueil</div>
+          <div class="form-title">⭐ Faire un éloge</div>
+          <div class="form-sub">Féliciter un agent méritant</div>
+          <div class="hdr-curve-lt" style="background:#F4F2ED"></div>
+        </div>
+        <div class="body-pad">
+          <div class="sec-label">Informations sur l'agent</div>
+          <div class="fgroup"><div class="flab">Nom / Matricule</div><input class="fi" id="agentName" placeholder="Nom ou numéro de matricule…"></div>
+          <div class="fgroup"><div class="flab">Unité / Brigade</div><input class="fi" id="agentUnit" placeholder="Ex: Commissariat de Cotonou"></div>
+          <div class="fgroup"><div class="flab">Date de l'acte</div><input class="fi" id="elogeDate" type="date"></div>
+          <div class="sec-label">Note de satisfaction</div>
+          <div class="star-row" id="starRow">
+            <span class="star" onclick="setStar(1)">⭐</span><span class="star" onclick="setStar(2)">⭐</span><span class="star" onclick="setStar(3)">⭐</span><span class="star" onclick="setStar(4)">⭐</span><span class="star" onclick="setStar(5)">⭐</span>
+          </div>
+          <div class="fgroup"><div class="flab">Témoignage</div><textarea class="fta" id="elogeTxt" placeholder="Décrivez l'acte méritant…" style="min-height:80px"></textarea></div>
+          <button class="btn-amber" onclick="doElogeSubmit()">Envoyer l'éloge →</button>
+        </div>
+      </div>
+
+      <!-- S05 Dénonciation -->
+      <div class="screen" id="s05">
+        <div class="hdr-blue">
+          <div class="back-row" onclick="goTo('s01')">← Retour à l'accueil</div>
+          <div class="form-title">🔍 Dénonciation</div>
+          <div class="form-sub">Activités suspectes &amp; abus de pouvoir</div>
+          <div class="hdr-curve-lt" style="background:#F4F2ED"></div>
+        </div>
+        <div class="body-pad">
+          <div class="sec-label">Type de dénonciation</div>
+          <div class="dtype-grid" id="dtypeGrid">
+            <div class="dtype on" onclick="setType(this,'dtypeGrid')">💵 Corruption</div>
+            <div class="dtype" onclick="setType(this,'dtypeGrid')">🦅 Abus pouvoir</div>
+            <div class="dtype" onclick="setType(this,'dtypeGrid')">💰 Malversation</div>
+            <div class="dtype" onclick="setType(this,'dtypeGrid')">🔒 Autre</div>
+          </div>
+          <div class="fgroup"><div class="flab">Personne concernée</div><input class="fi" id="denoAgent" placeholder="Nom, fonction, structure…"></div>
+          <div class="fgroup">
+            <div class="flab">Lieu &amp; date</div>
+            <div style="display:flex;gap:6px;align-items:stretch">
+              <input class="fi" id="denoLieu" placeholder="Lieu, commune, date…" style="flex:1">
+              <button onclick="getGeoLoc('denoLieu')" class="geo-btn geo-btn-blue">🌍</button>
+            </div>
+          </div>
+          <div class="fgroup"><div class="flab">Détails des faits</div><textarea class="fta" id="denoDesc" placeholder="Décrivez les faits en détail…" style="min-height:80px"></textarea></div>
+          <div class="info-box" style="margin-bottom:13px"><div class="info-box-t">🔒 Vous êtes protégé</div><div class="info-box-s">Votre identité reste confidentielle selon la loi béninoise.</div></div>
+          <button class="btn-blue" onclick="doDenoSubmit()">Soumettre la dénonciation →</button>
+        </div>
+      </div>
+
+      <!-- S06 Groupes suspects -->
+      <div class="screen" id="s06">
+        <div class="hdr-purple">
+          <div class="back-row" onclick="goTo('s01')">← Retour à l'accueil</div>
+          <div class="form-title">👥 Groupes suspects</div>
+          <div class="form-sub">Mouvements inhabituels dans votre zone</div>
+          <div class="hdr-curve-lt" style="background:#F4F2ED"></div>
+        </div>
+        <div class="body-pad">
+          <div class="sec-label">Effectif estimé</div>
+          <div class="segtabs" id="seg-eff"><div class="segtab on" onclick="segClick('seg-eff',0)">2–5</div><div class="segtab" onclick="segClick('seg-eff',1)">6–15</div><div class="segtab" onclick="segClick('seg-eff',2)">+15</div></div>
+          <div class="fgroup">
+            <div class="flab">Localisation</div>
+            <div style="display:flex;gap:6px;align-items:stretch">
+              <input class="fi" id="suspLoc" placeholder="Quartier, rue, point de repère…" style="flex:1">
+              <button onclick="getGeoLoc('suspLoc')" class="geo-btn geo-btn-purple">🌍</button>
+            </div>
+            <div id="suspLocStatus" style="font-size:9px;color:#9CA3AF;margin-top:3px"></div>
+          </div>
+          <div class="fgroup"><div class="flab">Description physique</div><textarea class="fta" id="suspDesc" placeholder="Vêtements, véhicules, comportements suspects…"></textarea></div>
+          <div class="fgroup"><div class="flab">Heure d'observation</div><input class="fi" id="suspHeure" type="time"></div>
+          <div class="sec-label">Niveau d'alerte</div>
+          <div class="urg-grid" id="suspUrgRow">
+            <div class="urg-card" onclick="setUrg(this,'suspUrgRow')"><div class="urg-ico">🟢</div><div class="urg-lbl">Veille</div></div>
+            <div class="urg-card on" onclick="setUrg(this,'suspUrgRow')" style="border-color:#7C3AED;background:#F5F3FF"><div class="urg-ico">🟡</div><div class="urg-lbl">Surveillance</div></div>
+            <div class="urg-card" onclick="setUrg(this,'suspUrgRow')"><div class="urg-ico">🔴</div><div class="urg-lbl">Alerte</div></div>
+            <div class="urg-card" onclick="setUrg(this,'suspUrgRow')"><div class="urg-ico">⛔</div><div class="urg-lbl">Critique</div></div>
+          </div>
+          <button class="btn-purple" onclick="doSuspSubmit()">Signaler ce groupe →</button>
+        </div>
+      </div>
+
+      <!-- S07 Dossiers -->
+      <div class="screen" id="s07">
+        <div class="hdr-green">
+          <div class="back-row" onclick="goTo('s01')">← Retour à l'accueil</div>
+          <div class="form-title">📋 Mes dossiers</div>
+          <div class="form-sub" id="dos-count">3 dossiers actifs</div>
+          <div class="hdr-curve"></div>
+        </div>
+        <div class="body-pad">
+          <div class="dos-search-wrap">
+            <div class="dos-search-ico">🔍</div>
+            <input class="dos-search-input" id="dosSearch" type="text" placeholder="Numéro de dossier ou mot-clé…" oninput="filterDossiers(this.value)">
+            <button class="dos-search-clear" id="dosSearchClear" onclick="clearDosSearch()" style="display:none">✕</button>
+          </div>
+          <div id="dosSearchMsg" style="display:none;font-size:11px;color:#9CA3AF;text-align:center;padding:8px 0 4px"></div>
+          <div class="sec-label" style="margin-top:12px">Dossiers récents</div>
+          <div id="dossList"></div>
+          <div class="card" style="text-align:center;padding:18px">
+            <div style="font-size:26px;margin-bottom:7px">🚩</div>
+            <div style="font-size:12px;font-weight:700;color:#111827;margin-bottom:3px">Nouveau signalement ?</div>
+            <div style="font-size:10px;color:#9CA3AF;margin-bottom:12px">Contribuez à la sécurité citoyenne</div>
+            <button style="padding:9px 18px;background:#178B42;color:#fff;border:none;border-radius:11px;font-size:11px;font-weight:700;cursor:pointer" onclick="goTo('s01')">Faire un signalement</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- S08 Succès -->
+      <div class="screen" id="s08">
+        <div class="suc-card">
+          <div class="suc-ico">✓</div>
+          <div class="suc-title" id="suc-title">Signalement enregistré !</div>
+          <div class="suc-sub" id="suc-sub">Votre signalement est stocké localement et sera envoyé automatiquement dès que le réseau sera disponible.</div>
+          <div class="ref-box"><div class="ref-lbl">Référence dossier</div><div class="ref-num" id="refNum">SRU-2026-0000</div></div>
+          <button style="width:100%;padding:13px;background:#178B42;color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;border:none;border-radius:13px;cursor:pointer;margin-bottom:9px" onclick="goTo('s07')">Voir mes dossiers →</button>
+          <button style="width:100%;padding:11px;background:#F3F4F6;color:#374151;font-family:var(--font-sans);font-size:12px;font-weight:600;border:none;border-radius:12px;cursor:pointer" onclick="goTo('s01')">Retour à l'accueil</button>
+        </div>
+      </div>
+
+      <!-- S-REWARD -->
+      <div class="screen" id="s-reward">
+        <div class="hdr-gold">
+          <div class="back-row" onclick="goTo('s01')">← Retour à l'accueil</div>
+          <div class="form-title">🎁 Programme de Récompenses</div>
+          <div class="form-sub">Informations signalées &amp; vérifiées</div>
+          <div class="hdr-curve-gold"></div>
+        </div>
+        <div class="body-pad">
+          <div class="sec-label">Questions fréquentes</div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>❓ Qui peut recevoir une récompense ?</span><span class="faq-chevron">⌄</span></div><div class="faq-a">Tout citoyen béninois ayant soumis une information via Sóóru peut bénéficier d'une récompense financière, à condition que l'information soit vérifiée et confirmée par les autorités compétentes.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>💵 Quel est le montant de la récompense ?</span><span class="faq-chevron">⌄</span></div><div class="faq-a">Le montant varie de 5 000 FCFA à 500 000 FCFA selon la nature et l'impact de l'information signalée.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>🕐 Dans quel délai la récompense est-elle versée ?</span><span class="faq-chevron">⌄</span></div><div class="faq-a">15 à 30 jours ouvrables après validation, via MTN Money ou Moov Money. Vous recevrez une notification SMS à chaque étape.</div></div>
+          <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>🔒 Mon anonymat est-il préservé ?</span><span class="faq-chevron">⌄</span></div><div class="faq-a">Oui. Votre identité reste strictement confidentielle. Le numéro Mobile Money est chiffré et utilisé uniquement pour le versement.</div></div>
+          <div class="reward-tel-card">
+            <div class="reward-tel-lbl">📱 Numéro Mobile Money pour la récompense</div>
+            <div class="reward-tel-hint">Renseignez votre numéro MTN Money ou Moov Money. Stocké localement, chiffré.</div>
+            <div class="fgroup" style="margin-bottom:8px">
+              <div class="flab">Opérateur</div>
+              <div style="display:flex;gap:8px;margin-bottom:10px">
+                <div onclick="selectOp(this,'mtn')" id="op-mtn" class="urg-card" style="flex:1;padding:10px 5px;text-align:center;font-size:10px;font-weight:700;border-color:#FCD116;background:#FFFBEB">📱 MTN Money</div>
+                <div onclick="selectOp(this,'moov')" id="op-moov" class="urg-card" style="flex:1;padding:10px 5px;text-align:center;font-size:10px;font-weight:700">📱 Moov Money</div>
+              </div>
+              <div class="flab">Numéro</div>
+              <input class="fi" id="mmTel" type="tel" placeholder="+229 XX XX XX XX" style="margin-bottom:10px">
+            </div>
+            <button class="btn-amber" onclick="saveMM()">Enregistrer mon numéro →</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /scroller -->
+
+    <!-- MODAL DOSSIER -->
+    <div class="modal-overlay" id="dosModal">
+      <div class="modal-sheet">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-handle"></div>
+        <div class="modal-title" id="modal-title">Titre</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="dos-badge" id="modal-badge">statut</span>
+          <span style="font-size:10px;color:#9CA3AF" id="modal-ref">#REF</span>
+        </div>
+        <div class="dos-bar-wrap" style="margin-bottom:12px"><div class="dos-bar" id="modal-bar" style="width:0%"></div></div>
+        <div class="modal-desc" id="modal-desc">Description.</div>
+        <button class="modal-btn" onclick="showToast('Rappel activé ✓','ok');closeModal()">🔔 Activer rappel local</button>
+        <button class="modal-btn sec" onclick="closeModal()">Fermer</button>
+      </div>
+    </div>
+
+    <!-- MODAL FORGOT -->
+    <div class="modal-overlay" id="forgotModal">
+      <div class="modal-sheet" style="padding-bottom:40px">
+        <button class="modal-close" onclick="document.getElementById('forgotModal').classList.remove('open')">✕</button>
+        <div class="modal-handle"></div>
+        <div style="font-family:var(--font-serif);font-size:16px;font-weight:700;color:#111827;margin-bottom:5px">📱 Mot de passe oublié</div>
+        <div style="font-size:10px;color:#9CA3AF;margin-bottom:16px">Recevez un code par SMS dès que le réseau est disponible</div>
+        <div class="flbl">Votre numéro</div>
+        <div class="fwrap"><input class="fin" id="forgotTel" type="tel" placeholder="+229 XX XX XX XX"></div>
+        <button class="btn-main" onclick="doForgotPwd()" style="background:linear-gradient(135deg,#1D4ED8,#1E3A8A)">Recevoir le code SMS →</button>
+      </div>
+    </div>
+
+    <!-- MODAL CREATE -->
+    <div class="modal-overlay" id="createModal">
+      <div class="modal-sheet" style="padding-bottom:40px">
+        <button class="modal-close" onclick="document.getElementById('createModal').classList.remove('open')">✕</button>
+        <div class="modal-handle"></div>
+        <div style="font-family:var(--font-serif);font-size:16px;font-weight:700;color:#111827;margin-bottom:5px">🔒 Créer mon compte</div>
+        <div style="font-size:10px;color:#9CA3AF;margin-bottom:16px">Première utilisation de Sóóru</div>
+        <div class="flbl">Numéro de téléphone</div>
+        <div class="fwrap"><input class="fin" id="createTel" type="tel" placeholder="+229 XX XX XX XX"></div>
+        <div class="flbl">Mot de passe</div>
+        <div class="fwrap"><input class="fin" id="createPwd" type="password" placeholder="Minimum 6 caractères"></div>
+        <div class="flbl">Confirmer</div>
+        <div class="fwrap"><input class="fin" id="createPwd2" type="password" placeholder="Répétez votre mot de passe"></div>
+        <button class="btn-main" onclick="doCreateAccount()">Créer mon compte →</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+// ── OFFLINE QUEUE (IndexedDB) ──
+let db;
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('SooruDB', 1);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('queue')) d.createObjectStore('queue', {keyPath:'id',autoIncrement:true});
+      if (!d.objectStoreNames.contains('dossiers')) d.createObjectStore('dossiers', {keyPath:'id',autoIncrement:true});
+      if (!d.objectStoreNames.contains('prefs')) d.createObjectStore('prefs', {keyPath:'key'});
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbPut(store, data) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(data);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+function dbGet(store, key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(key);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+// ── TRANSLATIONS ──
+const TR = {
+  fr: {
+    'w-sub':'Gouvernance & Sécurité Citoyenne',
+    'w-desc':'La plateforme citoyenne de référence au Bénin. Signalez, dénoncez, suivez.',
+    'w-cta':'Découvrir la plateforme →',
+    'home-title':'Bienvenue, citoyen',
+    'home-sub':'Contribuons à la sécurité de notre communauté',
+    'home-action-lbl':'Que souhaitez-vous faire ?',
+    'card-sig':'Signaler un incident','card-sig-s':'Incident, activité suspecte ou urgence',
+    'card-eloge':'Faire un éloge','card-eloge-s':'Féliciter un agent',
+    'card-deno':'Dénoncer','card-deno-s':'Activités suspectes',
+    'card-susp':'Groupes suspects','card-susp-s':'Mouvements inhabituels',
+    'card-dos':'Suivi de vos dossiers','card-dos-s':'Avancement de vos dossiers',
+    'anon-lbl':'Anonymat garanti',
+    'anon-txt':'Signalements anonymisés et stockés localement jusqu'à synchronisation réseau.',
+    'login-h':'Connexion sécurisée','login-s':'Pour soumettre un signalement',
+    'login-back':'Retour à l'accueil','login-why-t':'Pourquoi se connecter ?',
+    'login-why-s':'Votre numéro permet un suivi personnalisé.',
+    'lbl-user':'Numéro de téléphone','lbl-pass':'Mot de passe',
+    'login-btn-txt':'Accéder au signalement →',
+    fillAll:'Veuillez remplir tous les champs',loginErr:'Identifiants incorrects',
+    loginOK:'Connexion réussie ✓',sentOK:'Signalement enregistré ✓',
+    elogeOK:'Éloge enregistré ✓',denoOK:'Dénonciation enregistrée ✓',suspOK:'Groupe signalé ✓',
+    langOK:'Langue : Français ✓',starErr:'Veuillez attribuer une note ⭐',
+    connecte:'Connecté',anonMode:'Mode anonyme',
+    'suc-title':'Signalement enregistré !',
+    'suc-sub':'Stocké localement, sera envoyé automatiquement dès que le réseau est disponible.'
+  },
+  en: {
+    'w-sub':'Governance & Citizen Security',
+    'w-desc':'The reference citizen platform in Benin. Report, denounce, track.',
+    'w-cta':'Discover the platform →',
+    'home-title':'Welcome, citizen',
+    'home-sub':'Together for our community safety',
+    'home-action-lbl':'What would you like to do?',
+    'card-sig':'Report an Incident','card-sig-s':'Incident, suspicious activity or emergency',
+    'card-eloge':'Make a Commendation','card-eloge-s':'Compliment an officer',
+    'card-deno':'Denounce','card-deno-s':'Suspicious activities',
+    'card-susp':'Suspicious groups','card-susp-s':'Unusual movements',
+    'card-dos':'Track your cases','card-dos-s':'Case progress',
+    'anon-lbl':'Anonymity guaranteed',
+    'anon-txt':'Reports are stored locally and synced when network is available.',
+    'login-h':'Secure Login','login-s':'To submit a report',
+    'login-back':'Back to home','login-why-t':'Why sign in?',
+    'login-why-s':'Your number allows personalized follow-up.',
+    'lbl-user':'Phone number','lbl-pass':'Password',
+    'login-btn-txt':'Access reporting →',
+    fillAll:'Please fill in all fields',loginErr:'Incorrect credentials',
+    loginOK:'Login successful ✓',sentOK:'Report saved ✓',
+    elogeOK:'Commendation saved ✓',denoOK:'Denouncement saved ✓',suspOK:'Group reported ✓',
+    langOK:'Language: English ✓',starErr:'Please rate the officer ⭐',
+    connecte:'Logged in',anonMode:'Anonymous mode',
+    'suc-title':'Report saved!',
+    'suc-sub':'Stored locally, will be sent automatically when network is available.'
+  }
+};
+
+let lang='fr', toastTimer, pwdVis=false, stars=0;
+const ALL_SCREENS=['s-splash','s-lang','s00','s01','s02','s03','s04','s05','s06','s07','s08','s-reward'];
+const ACCOUNTS=[{u:'+22997000001',p:'Sooru2026!'},{u:'97000001',p:'Sooru2026!'},{u:'citoyen@sooru.bj',p:'Sooru2026!'}];
+
+function T(k){return(TR[lang]&&TR[lang][k])||(TR.fr[k])||k;}
+
+function goTo(id){
+  ALL_SCREENS.forEach(sid=>{const el=document.getElementById(sid);if(el){el.style.display='none';el.classList.remove('on');}});
+  const t=document.getElementById(id);if(!t)return;
+  t.classList.add('on');t.style.display='flex';
+  document.getElementById('scroller').scrollTop=0;
+  if(id==='s03')setTimeout(()=>fillCurrentDateTime('sigDate'),80);
+  if(id==='s04')setTimeout(()=>fillCurrentDateTime('elogeDate'),80);
+  if(id==='s07')renderDossiers();
+}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.innerHTML=msg;t.className='toast'+(type==='err'?' err':'')+' show';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{t.className='toast'+(type==='err'?' err':'');},2800);
+}
+
+function pickLang(l){
+  lang=l;
+  ['fr','en'].forEach(x=>{const b=document.getElementById('lopt-'+x);if(b)b.classList.toggle('sel',x===l);});
+  document.querySelectorAll('.local-lang-row').forEach(b=>b.classList.remove('sel'));
+  const dd=document.getElementById('localLangDropdown');if(dd)dd.style.display='none';
+  const ch=document.getElementById('local-chevron');if(ch)ch.style.transform='';
+  const lb=document.getElementById('lopt-local');if(lb){lb.classList.remove('sel');document.getElementById('local-tick').style.opacity='0';}
+  const go=document.getElementById('langGoBtn');if(go)go.textContent=l==='en'?'Continue →':'Continuer →';
+}
+
+function applyLang(){
+  const l=TR[lang]||TR.fr;
+  Object.keys(l).forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=l[id];});
+}
+
+function confirmLang(){
+  applyLang();
+  dbPut('prefs',{key:'lang',value:lang}).catch(()=>{});
+  showToast(T('langOK'),'ok');
+  setTimeout(()=>goTo('s00'),500);
+}
+
+function togglePwd(){
+  pwdVis=!pwdVis;
+  document.getElementById('loginPass').type=pwdVis?'text':'password';
+  document.getElementById('eyeBtn').textContent=pwdVis?'🙈':'👁';
+}
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const btn=document.getElementById('loginBtn');
+  if(!u||!p){showToast(T('fillAll'),'err');return;}
+  btn.disabled=true;document.getElementById('login-btn-txt').textContent='…';
+  setTimeout(()=>{
+    const ok=ACCOUNTS.find(a=>a.u===u&&a.p===p);
+    if(ok){showToast(T('loginOK'),'ok');setTimeout(()=>goTo('s03'),700);}
+    else showToast(T('loginErr'),'err');
+    btn.disabled=false;document.getElementById('login-btn-txt').innerHTML=T('login-btn-txt');
+  },900);
+}
+
+function goAnon(){
+  const sub=document.getElementById('sig-subtitle');if(sub)sub.textContent=T('anonMode');
+  const badge=document.getElementById('anonBadge');if(badge)badge.style.display='inline-flex';
+  goTo('s03');
+}
+
+function segClick(rowId,idx){document.getElementById(rowId).querySelectorAll('.segtab').forEach((t,i)=>t.classList.toggle('on',i===idx));}
+function setUrg(card,rowId){document.getElementById(rowId).querySelectorAll('.urg-card').forEach(c=>{c.classList.remove('on');c.style.borderColor='';c.style.background='';});card.classList.add('on');}
+function setStar(n){stars=n;document.getElementById('starRow').querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<n));}
+function setType(el,gridId){document.getElementById(gridId).querySelectorAll('.dtype').forEach(d=>d.classList.remove('on'));el.classList.add('on');}
+
+function handleUpload(input,boxId,lblId,typeName){
+  const file=input.files[0];if(!file)return;
+  if(file.size>50*1024*1024){showToast('Fichier trop volumineux (max 50 Mo)','err');input.value='';return;}
+  document.getElementById(boxId).classList.add('sel');
+  const name=file.name.length>16?file.name.substring(0,14)+'…':file.name;
+  document.getElementById(lblId).textContent=name;
+  if(!window.uploadedFiles)window.uploadedFiles={};window.uploadedFiles[boxId]=file;
+  const sz=file.size>1024*1024?(file.size/(1024*1024)).toFixed(1)+' Mo':Math.round(file.size/1024)+' Ko';
+  showToast(typeName+' ajouté ✓ ('+sz+')','ok');
+}
+
+function genRef(){return'SRU-2026-0'+String(Math.floor(Math.random()*900)+59).padStart(3,'0');}
+
+async function saveToQueue(data){
+  const ref=genRef();
+  const entry={...data,ref,ts:Date.now(),synced:false};
+  await dbPut('queue',entry);
+  await dbPut('dossiers',{ref,title:data.title||'Signalement',type:data.type||'incident',loc:data.loc||'',status:'ouvert',progress:10,ts:Date.now()});
+  return ref;
+}
+
+async function doSubmit(){
+  const loc=document.getElementById('sigLoc').value.trim();
+  const desc=document.getElementById('sigDesc').value.trim();
+  if(!loc||!desc){showToast(T('fillAll'),'err');return;}
+  const ref=await saveToQueue({type:'signalement',title:'Signalement — '+loc,loc,desc});
+  showToast(T('sentOK'),'ok');
+  document.getElementById('suc-title').textContent=T('suc-title');
+  document.getElementById('suc-sub').textContent=T('suc-sub');
+  document.getElementById('refNum').textContent=ref;
+  setTimeout(()=>goTo('s08'),600);
+}
+
+async function doElogeSubmit(){
+  const name=document.getElementById('agentName').value.trim();
+  const txt=document.getElementById('elogeTxt').value.trim();
+  if(!name||!txt){showToast(T('fillAll'),'err');return;}
+  if(stars===0){showToast(T('starErr'),'err');return;}
+  const ref=await saveToQueue({type:'eloge',title:'Éloge — '+name,agent:name,stars,txt});
+  showToast(T('elogeOK'),'ok');
+  document.getElementById('suc-title').textContent='⭐ '+T('elogeOK');
+  document.getElementById('suc-sub').textContent=T('suc-sub');
+  document.getElementById('refNum').textContent=ref;
+  setTimeout(()=>goTo('s08'),600);
+}
+
+async function doDenoSubmit(){
+  const desc=document.getElementById('denoDesc').value.trim();
+  if(!desc){showToast(T('fillAll'),'err');return;}
+  const ref=await saveToQueue({type:'denonciation',title:'Dénonciation',desc});
+  showToast(T('denoOK'),'ok');
+  document.getElementById('suc-title').textContent='🔍 '+T('denoOK');
+  document.getElementById('suc-sub').textContent=T('suc-sub');
+  document.getElementById('refNum').textContent=ref;
+  setTimeout(()=>goTo('s08'),600);
+}
+
+async function doSuspSubmit(){
+  const loc=document.getElementById('suspLoc').value.trim();
+  if(!loc){showToast(T('fillAll'),'err');return;}
+  const ref=await saveToQueue({type:'suspect',title:'Groupe suspect — '+loc,loc});
+  showToast(T('suspOK'),'ok');
+  document.getElementById('suc-title').textContent='👥 '+T('suspOK');
+  document.getElementById('suc-sub').textContent=T('suc-sub');
+  document.getElementById('refNum').textContent=ref;
+  setTimeout(()=>goTo('s08'),600);
+}
+
+// ── DOSSIERS (offline) ──
+const DEMO_DOSSIERS=[
+  {ref:'SRU-2026-0047',title:'Rassemblement suspect — Cadjehoun',type:'Incident',status:'cours',progress:65},
+  {ref:'SRU-2026-0031',title:'Corruption perçue — Marché Dantokpa',type:'Dénonciation',status:'traite',progress:100},
+  {ref:'SRU-2026-0058',title:'Activité nocturne suspecte — Fidjrossè',type:'Groupe suspect',status:'ouvert',progress:18},
+];
+
+async function renderDossiers(){
+  let items=[];
+  try{items=await dbGetAll('dossiers');}catch(e){}
+  const all=[...DEMO_DOSSIERS,...items.reverse()];
+  const cnt=document.getElementById('dos-count');if(cnt)cnt.textContent=all.length+' dossier(s) actif(s)';
+  const container=document.getElementById('dossList');if(!container)return;
+  container.innerHTML='';
+  all.forEach(d=>{
+    const statusMap={traite:'badge-traite',cours:'badge-cours',ouvert:'badge-ouvert'};
+    const lblMap={traite:'Traité',cours:'En cours',ouvert:'Ouvert'};
+    const colMap={traite:'#178B42',cours:'#F59E0B',ouvert:'#3B82F6'};
+    const st=d.status||'ouvert';const pr=d.progress||10;
+    const div=document.createElement('div');
+    div.className='dos-item';
+    div.onclick=()=>openModal(d.ref,d.title,'Signalement enregistré localement.',st,pr);
+    div.innerHTML='<div class="dos-header"><span class="dos-badge '+statusMap[st]+'">'+lblMap[st]+'</span><span class="dos-ref">#'+d.ref+'</span></div>'
+      +'<div class="dos-title">'+d.title+'</div>'
+      +'<div class="dos-sub">'+(d.type||'Signalement')+'</div>'
+      +'<div class="dos-bar-wrap"><div class="dos-bar" style="width:'+pr+'%;background:'+colMap[st]+'"></div></div>';
+    container.appendChild(div);
+  });
+}
+
+function filterDossiers(q){
+  const clear=document.getElementById('dosSearchClear');
+  const msg=document.getElementById('dosSearchMsg');
+  if(clear)clear.style.display=q?'block':'none';
+  const items=document.querySelectorAll('#dossList .dos-item');
+  const term=q.toLowerCase().trim();let found=0;
+  items.forEach(item=>{const match=!term||item.textContent.toLowerCase().includes(term);item.classList.toggle('hidden',!match);if(match)found++;});
+  if(msg){if(term&&found===0){msg.style.display='block';msg.textContent='Aucun dossier pour "'+q+'"';}else if(term){msg.style.display='block';msg.textContent=found+' dossier(s) trouvé(s)';}else msg.style.display='none';}
+}
+
+function clearDosSearch(){const inp=document.getElementById('dosSearch');if(inp){inp.value='';filterDossiers('');inp.focus();}}
+
+function openModal(ref,title,desc,status,progress){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-ref').textContent='#'+ref;
+  document.getElementById('modal-desc').textContent=desc;
+  const badge=document.getElementById('modal-badge');
+  const cls={traite:'badge-traite',cours:'badge-cours',ouvert:'badge-ouvert'};
+  const lbl={traite:'Traité',cours:'En cours',ouvert:'Ouvert'};
+  badge.className='dos-badge '+(cls[status]||'');badge.textContent=lbl[status]||status;
+  const bar=document.getElementById('modal-bar');
+  bar.style.width='0%';
+  const colors={traite:'#178B42',cours:'#F59E0B',ouvert:'#3B82F6'};
+  bar.style.background=colors[status]||'#178B42';
+  setTimeout(()=>{bar.style.width=progress+'%';},80);
+  document.getElementById('dosModal').classList.add('open');
+}
+function closeModal(){document.getElementById('dosModal').classList.remove('open');}
+
+function pickLangLocal(l){
+  document.querySelectorAll('.local-lang-row').forEach(b=>b.classList.remove('sel'));
+  const row=document.getElementById('lopt-'+l);if(row)row.classList.add('sel');
+  document.getElementById('lopt-local').classList.add('sel');
+  document.getElementById('local-tick').style.opacity='1';
+  const go=document.getElementById('langGoBtn');if(go)go.textContent='🎙️ Continuer en mode vocal →';
+  ['fr','en'].forEach(x=>{const b=document.getElementById('lopt-'+x);if(b)b.classList.remove('sel');});
+  showToast('🎙️ Mode vocal IA : '+l.charAt(0).toUpperCase()+l.slice(1),'ok');
+}
+
+function toggleFaq(item){const isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!isOpen)item.classList.add('open');}
+
+let selOp='mtn';
+function selectOp(el,op){selOp=op;document.querySelectorAll('#op-mtn,#op-moov').forEach(b=>{b.style.borderColor='#E5E7EB';b.style.background='#fff';});el.style.borderColor=op==='mtn'?'#FCD116':'#0284C7';el.style.background=op==='mtn'?'#FFFBEB':'#EFF6FF';}
+
+async function saveMM(){
+  const tel=document.getElementById('mmTel').value.trim();
+  if(!tel){showToast('Veuillez saisir votre numéro','err');return;}
+  await dbPut('prefs',{key:'mm_tel',value:tel,op:selOp});
+  showToast('Numéro '+(selOp==='mtn'?'MTN Money':'Moov Money')+' enregistré ✓','ok');
+}
+
+function showForgotPwd(){const tel=document.getElementById('loginUser').value.trim();if(tel)document.getElementById('forgotTel').value=tel;document.getElementById('forgotModal').classList.add('open');}
+function doForgotPwd(){const tel=document.getElementById('forgotTel').value.trim();if(!tel){showToast('Veuillez saisir votre numéro','err');return;}document.getElementById('forgotModal').classList.remove('open');showToast('📱 Demande enregistrée — SMS envoyé dès réseau disponible','ok');}
+
+function showCreateAccount(){document.getElementById('createModal').classList.add('open');}
+function doCreateAccount(){
+  const tel=document.getElementById('createTel').value.trim();
+  const pwd=document.getElementById('createPwd').value;
+  const pwd2=document.getElementById('createPwd2').value;
+  if(!tel){showToast('Veuillez saisir votre numéro','err');return;}
+  if(!pwd||pwd.length<6){showToast('Mot de passe trop court (min 6)','err');return;}
+  if(pwd!==pwd2){showToast('Les mots de passe ne correspondent pas','err');return;}
+  document.getElementById('createModal').classList.remove('open');
+  showToast('✓ Compte créé localement','ok');
+  dbPut('prefs',{key:'account',value:{tel,pwdHash:btoa(pwd)}}).catch(()=>{});
+  document.getElementById('loginUser').value=tel;
+  document.getElementById('loginPass').value=pwd;
+}
+
+function getGeoLoc(fieldId){
+  const btn=event.target;
+  const statusEl=document.getElementById(fieldId+'Status');
+  if(!navigator.geolocation){showToast('Géolocalisation non disponible','err');return;}
+  btn.classList.add('loading');
+  if(statusEl)statusEl.textContent='📡 Récupération de votre position…';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      btn.classList.remove('loading');
+      const lat=pos.coords.latitude.toFixed(5),lon=pos.coords.longitude.toFixed(5);
+      // Offline: just use raw coords — no external API call needed
+      document.getElementById(fieldId).value=lat+'° N, '+lon+'° E';
+      if(statusEl)statusEl.textContent='📍 Position GPS enregistrée';
+      showToast('📍 Position GPS récupérée ✓','ok');
+      // Try reverse geocoding if online (graceful degradation)
+      fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json&accept-language=fr')
+        .then(r=>r.json()).then(data=>{
+          const addr=data.address||{};const parts=[];
+          if(addr.suburb||addr.neighbourhood)parts.push(addr.suburb||addr.neighbourhood);
+          if(addr.city||addr.town||addr.village)parts.push(addr.city||addr.town||addr.village);
+          if(addr.county||addr.state_district)parts.push(addr.county||addr.state_district);
+          if(parts.length>0){document.getElementById(fieldId).value=parts.join(', ');if(statusEl)statusEl.textContent='📍 Adresse récupérée';}
+        }).catch(()=>{/* offline — coords already set */});
+    },
+    err=>{btn.classList.remove('loading');if(statusEl)statusEl.textContent='';const msgs={1:'Accès refusé',2:'Position indisponible',3:'Délai dépassé'};showToast(msgs[err.code]||'Erreur GPS','err');},
+    {timeout:8000,enableHighAccuracy:true}
+  );
+}
+
+function fillCurrentDateTime(fieldId){
+  const el=document.getElementById(fieldId);if(!el||el.value)return;
+  const now=new Date();const tzOffset=now.getTimezoneOffset()*60000;
+  el.value=new Date(now-tzOffset).toISOString().slice(0,16);
+}
+
+function toggleLocalLangs(){
+  const dd=document.getElementById('localLangDropdown');
+  const ch=document.getElementById('local-chevron');
+  const btn=document.getElementById('lopt-local');
+  const isOpen=dd.style.display!=='none';
+  dd.style.display=isOpen?'none':'block';
+  if(ch)ch.style.transform=isOpen?'':'rotate(180deg)';
+  if(!isOpen)btn.classList.add('sel');
+  else if(!document.querySelector('.local-lang-row.sel'))btn.classList.remove('sel');
+}
+
+function updateClock(){const now=new Date();document.getElementById('clock').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');}
+updateClock();setInterval(updateClock,30000);
+
+var dotIdx=0;setInterval(()=>{const d=document.getElementById('wdots');if(!d)return;d.querySelectorAll('span').forEach((s,i)=>s.classList.toggle('on',i===dotIdx));dotIdx=(dotIdx+1)%3;},1800);
+
+// ── INIT ──
+openDB().then(async()=>{
+  let savedLang;
+  try{const p=await dbGet('prefs','lang');if(p)savedLang=p.value;}catch(e){}
+  if(savedLang){lang=savedLang;pickLang(savedLang);}
+
+  let splashSeen;
+  try{const p=await dbGet('prefs','splash_seen');if(p)splashSeen=p.value;}catch(e){}
+  if(!splashSeen){
+    goTo('s-splash');
+    let splashDotIdx=0;
+    const t=setInterval(()=>{
+      const dots=document.querySelectorAll('.splash-dot');
+      dots.forEach((d,i)=>d.classList.toggle('active',i===splashDotIdx));
+      splashDotIdx=(splashDotIdx+1)%3;
+    },1200);
+    setTimeout(()=>{clearInterval(t);dbPut('prefs',{key:'splash_seen',value:true});goTo('s-lang');},4000);
+  } else {goTo('s-lang');}
+}).catch(()=>{
+  // Fallback si IndexedDB non disponible
+  goTo('s-lang');
+});
+</script>
+</body>
+</html>
