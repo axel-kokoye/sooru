@@ -19,6 +19,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Generate gradlew
+        run: gradle wrapper --gradle-version 8.0
+
       - name: Grant execute permission
         run: chmod +x gradlew
 
