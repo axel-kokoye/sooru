@@ -1,0 +1,25 @@
+{
+  "name": "sooru-citoyen",
+  "version": "1.0.0",
+  "description": "Sóóru · Manuel Citoyen — Application Android officielle",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Static HTML project - no build step needed'",
+    "sync": "npx cap sync android",
+    "open": "npx cap open android",
+    "run:android": "npx cap run android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/camera": "^6.0.0",
+    "@capacitor/share": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  },
+  "keywords": ["sooru", "benin", "civic", "android"],
+  "author": "Axe Webtech",
+  "license": "UNLICENSED"
+}
